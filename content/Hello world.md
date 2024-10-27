@@ -5,3 +5,4 @@ tags:
   - introduction
 ---
 Hello world!
+npx quartz sync
