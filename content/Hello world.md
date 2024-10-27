@@ -5,4 +5,5 @@ tags:
   - introduction
 ---
 Hello world!
-npx quartz sync
+
+Is this supposed to work? Cuz I hope it does.
