@@ -1,9 +1,7 @@
 ---
 title: Hello world
-draft: false
+draft: "false"
 tags:
   - introduction
 ---
-Hello world!
-
-Is this supposed to work? Cuz I hope it does.
+Hello cat meow meow. This should work.
