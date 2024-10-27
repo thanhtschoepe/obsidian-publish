@@ -1,6 +1,6 @@
 ---
 title: Hello world
-draft: "false"
+draft: false
 tags:
   - introduction
 ---
