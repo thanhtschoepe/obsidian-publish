@@ -1,5 +1,7 @@
 ---
-tags: []
+tags:
+  - oop
+title: We should not fear object oriented programming
 ---
 What puzzles me in my career writing front-end applications using [[React]] is how core parts of the business are all grouped as **utilities**.
 
@@ -120,5 +122,7 @@ class MyHelper {
 Here, the `increment` function can return a new instance of the class, aka updating this immutably.
 
 # Conclusion 
+
+[Design patterns are a solution to the problem OOP itself creates : r/ProgrammerHumor](https://www.reddit.com/r/ProgrammerHumor/comments/10z4lil/design_patterns_are_a_solution_to_the_problem_oop/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button)
 
 I think OOP is a good tool to write more scalable software. It doesn't have to contradict with the core principle that makes functional programming great (no side effect, immutable update, etc). There's added benefit for tooling discovery, not to mention the prospect of writing generic components without fat functions with if/else statements.
