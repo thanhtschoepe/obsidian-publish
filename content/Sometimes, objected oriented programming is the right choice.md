@@ -20,7 +20,7 @@ If you work on the type of application that offset as much of these complicate l
 
 # Why, just why?
 
-## Poor discoverability
+## Status Quo: Utility-first approach
 My current day job is the CRM system at [HubSpot](https://www.hubspot.com/careers), specifically the Index Page. As you'd figure, making a world-class CRM is no easy business, and the amount of logic to that business in my team's codebase is staggering. In fact, it's probably the largest codebase in the entirety of HubSpot, often giving our internal typescript language server a run for its money, and it takes 20 minutes to build in the CI pipeline, but I digress.
 
 Within the CRM, customer data are organized around **Objects**. We have a growing collections of standardly defined Objects like **Contacts**, **Deals**, **Companies**, **Tasks**, etc. and users can define their own **Custom Objects**. Each Object has a list of properties, where the actual data corresponds to. For example, a user using Contact object to track their customers interactions may have properties like `first_name`, `last_name` and `email`, amongst other things.
@@ -84,7 +84,7 @@ Let's call this strategy a utility-first approach.
 > [!NOTE] Utility-first approach
 > Share common features such as data derivation by creating utility functions in helper files.
 
-## Implementation drift
+## Poor discoverability and Implementation drift
 The actual HubSpot system have other features like [Association](https://knowledge.hubspot.com/records/associate-records). These needs to have primary display label logic too. Not only is there a completely different data type besides core Object that exhibit this feature, getting primary display label is of the business of other UI areas, such as the Record page where users can dive deeper into the details of a particular record.
 
 Since this primary display label is not a data that you can directly get from the backend, and Association is a different feature that may shows up in different components, we've made attempts to extract this logic to a commonly shared module. As you could have guess, it lives in a utility.
@@ -103,7 +103,7 @@ export const getDisplayLabel(metaData: ObjectMetaData | AssociationMetaData, rec
 The problem with utility-first approach is when you have such a huge codebase like my teams', with mid-migration code, your newly onboard devs simply aren't aware of all the scattered utilities as they work on a separate systems / parts of the system. 
 
 > [!warning] Drawback 1: Poor discoverability
-> **Utility-first approach suffers from poor discoverability when the codebase reach a certain critical mass.** 
+> Utility-first approach suffers from poor discoverability when the codebase reach a certain critical mass. 
 
 
 In reality, I've seen this separate system that shares the same behavior have a different implementation that doesn't match all of our PM's requirement, leading to some differences. Let's call this **implementation drift.**
@@ -123,7 +123,7 @@ With test setup being a high cost activity, it becomes more expensive to write a
 
 
 # What's your suggestion, then?
-The way I see it, in the story I shared above, there are data (core Object, Association), and methods that operates on those data (`getPrimaryDisplayLabel`, `getCreationTimeStamp`). Since we have a problem of [[#Poor discoverability]] and [[#Implementation drift]], why not co-locate the those two together for better locality of behavior?
+The way I see it, in the story I shared [[#Status Quo Utility-first approach|above]], there are data (core Object, Association), and methods that operates on those data (`getPrimaryDisplayLabel`, `getCreationTimeStamp`). Since we have a problem of [[#Poor discoverability]] and [[#Implementation drift]], why not co-locate the those two together for better locality of behavior?
 
 ![](https://i.imgflip.com/983y6e.jpg)
 
@@ -207,7 +207,10 @@ const changeEmail = useCallback((newEmail: string) => {
 });
 ```
 
-This design makes it possible and natural to use this wrapper class pattern for state management.
+
+> [!important] Mutation methods should be pure and update immutably
+> This design makes it possible and natural to use this wrapper class pattern for state management and adheres to Function Programming principle, which results important benefits.
+
 
 # Benefits
 
