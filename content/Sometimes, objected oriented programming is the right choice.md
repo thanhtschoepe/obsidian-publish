@@ -155,7 +155,7 @@ Front-end application typically gets the data from our network. **The very first
 
 Secondly, there are many one-off data process that is bespoken to a UI Component. We definitely do not want to close these door by over-engineering our encapsulation.
 
-> [!important] 
+> [!important] inner POJO should be `public readonly`
 > Keep inner POJO public for ad-hoc data work in Components. To control against accidental mutation, declare inner POJO as `readonly`.
 
 I think this design provides the best of both world:
