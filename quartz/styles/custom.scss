@@ -2,6 +2,10 @@
 
 // put your custom CSS here!
 
+* {
+  hyphens:none;
+}
+
 .left {
   grid-template-rows: min-content min-content min-content min-content;
   grid-template-columns: 1fr;
@@ -36,4 +40,203 @@
 
 .article-title {
   font-size: 3rem;
+}
+
+
+/* For Webkit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+  width: 10px;  /* width of vertical scrollbar */
+  background: transparent;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent;
+}
+
+.page-title {
+  img {
+    display: block;
+  }
+}
+
+.page>#quartz-body .sidebar {
+  padding: 4rem 2rem 2rem;
+}
+
+
+/* Blobs */
+
+.blob-container {
+  position: absolute;
+  top: -7.14rem; /* -100px / 14px */
+  left: -7rem;
+  z-index: -100;
+}
+
+.blob-cont {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: -2;
+  height: 35.71rem; /* 500px / 14px */
+  width: 35.71rem;
+  position: relative;
+  right: 5em;
+}
+
+.blob {
+  border-radius: 7.14rem; /* 100px / 14px */
+  filter: blur(4.29rem); /* 60px / 14px */
+}
+
+.yellow {
+  background-color: var(--secondary);
+  position: absolute;
+  top: 14.29rem; /* 200px / 14px */
+  left: 7.14rem; /* 100px / 14px */
+  height: 14.29rem;
+  width: 14.29rem;
+  animation: yellow 20s infinite ease;
+}
+
+.green {
+  background-color: var(--tertiary);
+  position: absolute;
+  top: 5.71rem; /* 80px / 14px */
+  right: -1.43rem; /* -20px / 14px */
+  height: 14.29rem;
+  width: 17.86rem; /* 250px / 14px */
+  animation: green 20s infinite ease;
+}
+
+.red {
+  background-color: var(--textHighlight);
+  position: absolute;
+  right: 0;
+  top: 21.43rem; /* 300px / 14px */
+  height: 17.86rem;
+  width: 14.29rem;
+  animation: red 20s infinite linear;
+}
+
+@keyframes yellow {
+  0% {
+    top: 14.29rem;
+    left: 7.14rem;
+    transform: scale(1);
+  }
+  30% {
+    top: 28.57rem; /* Increased from 300px to 400px */
+    left: 17.86rem; /* Increased from 150px to 250px */
+    transform: scale(1.4); /* Increased from 1.2 */
+  }
+  60% {
+    top: 3.57rem; /* Decreased from 100px to 50px */
+    left: 21.43rem; /* Increased from 200px to 300px */
+    transform: scale(1.6); /* Increased from 1.3 */
+  }
+  100% {
+    top: 14.29rem;
+    left: 7.14rem;
+    transform: scale(1);
+  }
+}
+
+@keyframes green {
+  0% {
+    top: 5.71rem;
+    right: -1.43rem;
+    transform: scale(1.4); /* Increased from 1.2 */
+  }
+  30% {
+    top: 28.57rem; /* Increased from 300px to 400px */
+    right: -3.57rem; /* Increased movement */
+    transform: scale(0.8); /* Changed from 1 for more variation */
+  }
+  60% {
+    top: 21.43rem; /* Increased from 200px to 300px */
+    right: 10.71rem; /* Increased from 100px to 150px */
+    transform: scale(1.2); /* Changed from 1 */
+  }
+  100% {
+    top: 5.71rem;
+    right: -1.43rem;
+    transform: scale(1.4);
+  }
+}
+
+@keyframes red {
+  0% {
+    top: 17.86rem;
+    right: 0;
+    transform: scale(1);
+  }
+  30% {
+    top: 7.14rem; /* Changed from 150px to 100px */
+    right: 14.29rem; /* Changed from 150px to 200px */
+    transform: scale(1.8); /* Increased from 1.4 */
+  }
+  60% {
+    top: 21.43rem; /* Changed from 250px to 300px */
+    right: 10.71rem; /* Changed from 100px to 150px */
+    transform: scale(0.8); /* Changed from 1 for more variation */
+  }
+  100% {
+    top: 17.86rem;
+    right: 0;
+    transform: scale(1);
+  }
+}
+
+.article-title {
+  background: linear-gradient(
+      90deg,
+      var(--secondary) 0%,
+      var(--textHighlight) 30%,
+      var(--tertiary) 50%,
+      var(--tertiary) 70%,
+      var(--textHighlight) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+
+.page article p>strong {
+  background: linear-gradient(90deg, hsla(217, 100%, 50%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Ensure the text remains sharp */
+  -webkit-text-fill-color: transparent;
+  /* Add a white text-shadow for better legibility on dark backgrounds */
+  text-shadow: 0 2px 4px color-mix(in srgb, var(--darkgray) 25%, transparent);
+}
+
+a.external {
+  text-decoration: underline;
+}
+
+.page-title > a {
+  color: var(--darkgray) !important;
+}
+
+.callout {
+  box-shadow: 0px -1px 7px 0px var(--color) inset;
+}
+
+#search-button, .tag-link {
+  background-color: color-mix(in srgb, var(--darkgray) 25%, transparent);
+}
+
+* > h3 {
+  font-size: 1.5rem !important;
 }

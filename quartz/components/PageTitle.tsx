@@ -8,6 +8,14 @@ const PageTitle: QuartzComponent = ({ fileData, cfg, displayClass }: QuartzCompo
   const baseDir = pathToRoot(fileData.slug!)
   return (
     <h2 class={classNames(displayClass, "page-title")}>
+      <div class="blob-container">
+        <div class="blob-cont">
+          <div class="yellow blob"></div>
+          <div class="red blob"></div>
+          <div class="green blob"></div>
+        </div>
+      </div>
+      <img src={"static/meowbark.webp"} alt="" width={150} />
       <a href={baseDir}>{title}</a>
     </h2>
   )
