@@ -1,6 +1,29 @@
 @use "./base.scss";
+@use "./variables.scss" as *;
 @use "../components/styles/recentNotes.scss";
 // put your custom CSS here!
+
+.title-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  a {
+    color: var(--darkgray) !important;
+  }
+  img {
+    width: 150px;
+  }
+
+  @media ($mobile) {
+    flex-direction: row;
+    align-items: center;
+
+    & img {
+      width: 75px;
+    }
+  }
+}
 
 .popover>.popover-inner {
   font-size: 1rem;
@@ -10,16 +33,18 @@
   hyphens:none;
 }
 
-.left {
-  grid-template-rows: min-content min-content min-content min-content;
-  grid-template-columns: 1fr;
-  align-items: center;
-  gap: 1.5rem!important;
-  display: grid!important
-}
+@media  ($desktop) {
+  .left {
+    grid-template-rows: min-content min-content min-content min-content;
+    grid-template-columns: 1fr;
+    align-items: center;
+    gap: 1.5rem!important;
+    display: grid!important
+  }
 
-.left .page-title {
-  grid-area: 1/1/2/3
+  .left .page-title {
+    grid-area: 1/1/2/3
+  }
 }
 
 .left .search {
@@ -64,12 +89,6 @@
   scrollbar-color: transparent;
 }
 
-.page-title {
-  img {
-    display: block;
-  }
-}
-
 .page>#quartz-body .sidebar {
   padding: 4rem 2rem 2rem;
 }
@@ -78,6 +97,12 @@
 /* Blobs */
 
 .blob-container {
+  @media ($mobile) {
+    transform: scale(0.5);
+    top: -15rem;
+    left: -10rem;
+  }
+
   position: absolute;
   top: -7.14rem; /* -100px / 14px */
   left: -7rem;
@@ -228,10 +253,6 @@
 
 a.external {
   text-decoration: underline;
-}
-
-.page-title > a {
-  color: var(--darkgray) !important;
 }
 
 .callout {

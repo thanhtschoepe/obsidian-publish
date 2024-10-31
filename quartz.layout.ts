@@ -6,18 +6,20 @@ export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
   header: [],
   afterBody: [
-    Component.Comments({
-      provider: "giscus",
-      options: {
-        repo: "thanhtschoepe/obsidian-publish",
-        repoId: "R_kgDOND35Vg",
-        category: "Announcements",
-        categoryId: "DIC_kwDOND35Vs4Cj1S_",
-        themeUrl: "https://meowbark.dev/static/giscus", // corresponds to quartz/static/giscus/
-        lightTheme: "light", // corresponds to light-theme.css in quartz/static/giscus/
-        darkTheme: "dark",
-      },
-    }),
+    Component.DesktopOnly(
+      Component.Comments({
+        provider: "giscus",
+        options: {
+          repo: "thanhtschoepe/obsidian-publish",
+          repoId: "R_kgDOND35Vg",
+          category: "Announcements",
+          categoryId: "DIC_kwDOND35Vs4Cj1S_",
+          themeUrl: "https://meowbark.dev/static/giscus", // corresponds to quartz/static/giscus/
+          lightTheme: "light", // corresponds to light-theme.css in quartz/static/giscus/
+          darkTheme: "dark",
+        },
+      }),
+    ),
   ],
   footer: Component.Footer({
     links: {
@@ -36,10 +38,12 @@ export const defaultContentPageLayout: PageLayout = {
     Component.Search(),
     Component.Darkmode(),
     Component.DesktopOnly(Component.Explorer()),
-    Component.RecentNotes({
-      title: "Fresh ink",
-      showTags: false,
-    }),
+    Component.DesktopOnly(
+      Component.RecentNotes({
+        title: "Fresh ink",
+        showTags: false,
+      }),
+    ),
   ],
   right: [
     Component.TagList(),

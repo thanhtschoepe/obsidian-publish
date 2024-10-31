@@ -15,8 +15,12 @@ const PageTitle: QuartzComponent = ({ fileData, cfg, displayClass }: QuartzCompo
           <div class="green blob"></div>
         </div>
       </div>
-      <img src={"static/meowbark.webp"} alt="" width={150} />
-      <a href={baseDir}>{title}</a>
+      <div class="title-logo">
+        <img src={"static/meowbark.webp"} alt="" />
+        <a href={baseDir} class={displayClass}>
+          {title}
+        </a>
+      </div>
     </h2>
   )
 }
@@ -25,6 +29,11 @@ PageTitle.css = `
 .page-title {
   font-size: 1.75rem;
   margin: 0;
+}
+.title-logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 `
 
