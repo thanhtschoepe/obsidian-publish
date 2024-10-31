@@ -1,5 +1,7 @@
 ---
 title: The Bussin programming language
+tags:
+  - programmng_language
 ---
 Recently I came across this video
 ![](https://www.youtube.com/watch?v=pgeSGBwtHW8)
