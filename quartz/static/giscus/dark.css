@@ -45,16 +45,23 @@
   --color-btn-active-border: #6e7681;
   --color-btn-selected-bg: #161b22;
   --color-btn-primary-text: #fff;
-  --color-btn-primary-bg: #238636;
+  /* Base primary button */
+  --color-btn-primary-bg: rgb(187, 119, 237);
   --color-btn-primary-border: rgb(240 246 252 / 10%);
   --color-btn-primary-shadow: 0 0 transparent;
   --color-btn-primary-inset-shadow: 0 0 transparent;
-  --color-btn-primary-hover-bg: #2ea043;
+
+  /* Hover state - slightly darker */
+  --color-btn-primary-hover-bg: rgb(169, 94, 225);
   --color-btn-primary-hover-border: rgb(240 246 252 / 10%);
-  --color-btn-primary-selected-bg: #238636;
+
+  /* Selected/Active state - even darker */
+  --color-btn-primary-selected-bg: rgb(150, 75, 206);
   --color-btn-primary-selected-shadow: 0 0 transparent;
+
+  /* Disabled states */
   --color-btn-primary-disabled-text: rgb(255 255 255 / 50%);
-  --color-btn-primary-disabled-bg: rgb(35 134 54 / 60%);
+  --color-btn-primary-disabled-bg: rgb(187 119 237 / 60%);
   --color-btn-primary-disabled-border: rgb(240 246 252 / 10%);
   --color-action-list-item-default-hover-bg: rgb(177 186 196 / 12%);
   --color-segmented-control-bg: rgb(110 118 129 / 10%);
