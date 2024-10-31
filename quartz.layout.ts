@@ -13,6 +13,9 @@ export const sharedPageComponents: SharedLayout = {
         repoId: "R_kgDOND35Vg",
         category: "Announcements",
         categoryId: "DIC_kwDOND35Vs4Cj1S_",
+        themeUrl: "https://meowbark.dev/static/giscus", // corresponds to quartz/static/giscus/
+        lightTheme: "light-theme", // corresponds to light-theme.css in quartz/static/giscus/
+        darkTheme: "dark-theme",
       },
     }),
   ],
