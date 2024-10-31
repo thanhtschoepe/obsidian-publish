@@ -204,9 +204,9 @@
       90deg,
       var(--secondary) 0%,
       var(--textHighlight) 30%,
-      var(--tertiary) 50%,
+      var(--textHighlight) 50%,
       var(--tertiary) 70%,
-      var(--textHighlight) 100%
+      var(--tertiary) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -215,7 +215,7 @@
 
 
 .page article p>strong {
-  background: linear-gradient(90deg, var(--secondary), (--var(--tertiary)));
+  background: linear-gradient(90deg, var(--secondary) 0%, var(--tertiary) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
