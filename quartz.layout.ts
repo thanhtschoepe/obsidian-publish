@@ -33,6 +33,10 @@ export const defaultContentPageLayout: PageLayout = {
     Component.Search(),
     Component.Darkmode(),
     Component.DesktopOnly(Component.Explorer()),
+    Component.RecentNotes({
+      title: "Fresh ink",
+      showTags: false,
+    }),
   ],
   right: [
     Component.TagList(),
