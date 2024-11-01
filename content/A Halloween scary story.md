@@ -9,7 +9,6 @@ title: A Halloween scary story for dev.
 
 **Happy Halloween** 🎃! I have a horror story for you! Don't forget to stock up some good candy for your kid, and feed your cat some **nips** while you're at it 😎.
 
-**Happy Halloween** 🎃 - A Horror Story for Software Engineers
 
 ---
 
