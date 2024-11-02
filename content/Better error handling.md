@@ -9,132 +9,117 @@ tags:
   - typescript
 date: 2024-11-01
 ---
-I hope everybody had a fun Halloween night.
-
-Today, I wanna talk about Error Handling. There's a lot of horror and tragedy involving bad error handling. You can read more about them in my [[A Halloween scary story]], based on true events, or watch this newly minted Fireship video.
+Bad error handling has cost billions of dollars, crashed planes, killed people, tanked stock markets, wrecked vehicles, and delayed flights. As we reflect on Halloween, it's fitting to consider these horror stories of software gone wrong. You can read more about them in my [[A Halloween scary story]], based on true events, or watch this newly minted Fireship video.
 
 ![](https://youtu.be/Iq_r7IcNmUk?si=WkMDGaLFP_OV80J2)
 
-_Thank God I didn't fly during the CrowStrike strike (see what I did there?)._
+_Thank God I didn't fly during the CrowStrike incident (see what I did there?)._
 
-Bad error handling costed billions of dollar, crashed plane, killed people, tank the stock market, wreck vehicle, delayed flights, so on and so forth. No wonder why this topic is so passionate.
+Error handling isn't just a technical challenge - it's a critical aspect of software safety and reliability. Yet in TypeScript and JavaScript, it remains something of a wild west. Today, I'll share an overview of the current landscape and my preferred approaches.
 
-The strategy to deal with error is also a source of controversy amongst different camps of developers. For Typescript and Javascript though, it's still a wild west. Today I wanted to share what I know of the landscape is, and my personal favorite.
+# The Current State of Error Handling
 
-
-# The current art
-It's the normal try/catch method. Everybody knows how this work. Same goes for async code.
+The most common approach is the traditional try/catch method. Everyone is familiar with its basic syntax, which works similarly for both synchronous and asynchronous code:
 
 ```ts
 try {} catch (e) {} finally {}
 ```
 
+While this works well for simple scenarios, it presents significant challenges when scaled to enterprise-level applications or complex libraries.
 
-Looks good for small and simple problem. But when scaled to enterprise and complicated library scale of complexity, this left much to be desire.
+## Limitations of Traditional Error Handling
 
-Here's the list of problems that people have complained about it:
-## Control jump, so basically a glorified go/to. 
-Legendary computer scientist [Edsger W. Dijkstra](https://dl.acm.org/doi/10.1145/362929.362947# "Edsger W. Dijkstra") [Goto statement considered harmful](https://dl.acm.org/doi/10.1145/362929.362947)
+### 1. Control Flow Disruption
+Essentially, it's a glorified GOTO statement - something legendary computer scientist [Edsger W. Dijkstra](https://dl.acm.org/doi/10.1145/362929.362947# "Edsger W. Dijkstra") warned against in his famous paper [Goto Statement Considered Harmful](https://dl.acm.org/doi/10.1145/362929.362947).
 
 ![](https://www.explainxkcd.com/wiki/images/7/7a/goto.png)
 
 _credit: XKCD_
 
-This is basically the same suffering that earlier developer pre-Promise suffered.
-## Anything can be thrown 
-You typically throw Error. But did you know that [you can actually throw anything](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/throw)?
+This creates the same kind of challenges that developers faced with callbacks before Promises came along.
 
-It's why in typescript, typically the caught error type is `unknown`.
+### 2. Type Safety Concerns
+While you typically throw Error objects, [JavaScript allows you to throw anything](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/throw). This is why in TypeScript, caught errors are typically typed as `unknown`.
 
-As more and more people relied on the benefit of type-checking, this break is gnarly. You don't know what you're catching for sure. Your handling code might break as well.
+As teams increasingly rely on type-checking for code safety, this limitation becomes more problematic. You can't be certain what you're catching, which means your error handling code might itself be prone to errors.
 
-## Throwing code is a surprise
+### 3. Lack of Type System Integration
+As developers increasingly depend on type-checking, there's a growing need for the type system to represent potentially throwing code, similar to how `Promise` indicates asynchronous execution.
 
-Again, **as more and more people relied on the benefit of type-checking**, ideally the type system can represent the fact that some code may throw, just like how `Promise` represents that the code might not execute synchronously.
+Currently, there's no way to type thrown errors. Code that may throw is indistinguishable from code that won't. While some developers use `@throw` in JSDoc comments, relying on optional documentation isn't a sustainable strategy for critical systems like flight controls or medical devices.
 
-There's currently no way to type thrown Error. Code that may throw are completely indistinguishable from code that is guaranteed from not throwing. The best I've seen people could do is adding `@throw` to JSDoc, but documenting code itself is surprising a controversial topic.
+# Modern Approaches to Error Handling
 
-If you're going to build software for the next flight control system, or health-saving medical devices, "opt-in" comment from other devs are not really a sustainable strategy.
+Recent approaches to better error handling share two key principles:
+1. Avoid unpredictable control flow jumps
+2. Treat errors as values
 
-# What are the options 
-Every attempts at better error handling that I've seen these days all agree on the fact that the jumpy control flow is not ideal, and it's necessary to treat Error as Value. You can read more about the motivation [here](https://jessewarden.com/2021/04/errors-as-values.html). Instead of `throwing` error, you `return` it.
+Instead of throwing errors, these approaches return them, making errors another form of sentinel value (similar to how `.indexOf` returns `-1` for failure rather than throwing).
 
-In a way, the error becomes another kind of **sentinel** value. It's like how `-1` denotes failure for `.indexOf` method, instead of throwing error.
-## Go style
+## Go-style: Return Tuples
+
 Source: https://go.dev/blog/error-handling-and-go
 
-Instead of return normally, you return a tuple 
+This approach returns a tuple containing either the result or an error:
 
 ```ts
-type ResultTuple = [number, null] | [null | Error];
+type ResultTuple = [number, null] | [null, Error];
 function divisionByZero(n: number): ResultTuple {};
 ```
 
-The main takeaway here is of course the error is returned, and it is representable by the type system. Documentation is automatic, and it's explicit what code needs error handling, and what's not.
-
-There are proposal about a syntax sugar to make this process better and standardized. You can watch this video from Theo about the topic.
+The key advantage is that errors become part of the type system, making it explicit which code paths need error handling. There are proposals for syntax improvements to standardize this approach, as discussed in this video by Theo:
 
 ![](https://www.youtube.com/watch?v=lng6dmrWg8A)
 
-## Monadic style
+## Monadic Style: Result Types
 
- ![](https://i.imgflip.com/98lel2.jpg)
+![](https://i.imgflip.com/98lel2.jpg)
 
+While "monad" sounds intimidating, think of it as a container for values that might fail - similar to how `Promise` handles asynchronous operations. In error handling, this usually takes the form of `Either<L,R>` (Scala/Haskell) or `Result<T,E>` (Rust).
 
-Monad is such a big word. But essentially it's a data structure that you can "plug" functions in to deal with the error. `Promise` is the closest example I can think of how a Monad would look and feel like.
-
-For error, it's typically called `Either<L,R>` (scale/haskell) or `Result<T,E>` (rust). Typically these are a opaque data structure and so eventually you'll need to "unwrap" the structure to get the data inside, forcing you to handle the error case.
+Here's how it looks in practice:
 
 ```ts
-// type signature is now Result (from Rust)
+// Using Result type (Rust-style)
 function division(a: number, b: number): Result<number, Error> {
-	/* not focus */
+    /* implementation details */
 }
 
-// usage;
+// Usage:
 function main() {
-	let data = division(4, 2); 
-	if (data.isOk()) {
-		// you have to "open" the box to get the value.
-		console.log(data.unwrap());
-	} else {
-		// and you're force to handle the error case, too.
-		console.error(data.unwrapError());
-	};
+    let data = division(4, 2); 
+    if (data.isOk()) {
+        // Safely access the success value
+        console.log(data.unwrap());
+    } else {
+        // Handle the error case explicitly
+        console.error(data.unwrapError());
+    };
 
-	// monad typically allow fluent API to do transformation, similar to Promise
-	data.map(n => n *2 ).mapErr(err => err.toString());
+    // Chain operations with a fluent API
+    data.map(n => n * 2).mapErr(err => err.toString());
 }
 ```
 
-Monadic error handling is most prevalent in Haskell, Scala, Rust and other functional programming language community because it's deeply a functional programming language idea.
+You can find implementations of this pattern in functional programming libraries like [`Effect`](https://effect.website/docs/error-management/expected-errors/) or [Oxide-ts](https://www.npmjs.com/package/oxide.ts/v/1.0.0-next.6#new-in-10).
 
-You can find implementation of this in popular FP library, like [`Effect`](https://effect.website/docs/error-management/expected-errors/)
+# Practical Considerations
 
-My personal favorite Rust flavor is [Oxide-ts](https://www.npmjs.com/package/oxide.ts/v/1.0.0-next.6#new-in-10).
+In discussions with my colleagues at HubSpot, we've found that for typical frontend applications - especially those using `tanstack/query` or `apolloClient` for network error handling - the traditional try/catch approach often suffices.
 
-# My take
+The Go-style approach offers simplicity and accessibility, though it requires eager error handling. The monadic style provides more features, like boolean operations and chaining multiple fallible operations, while maintaining lazy evaluation. However, its learning curve and API complexity can be challenging, especially for junior developers.
 
-I did bring these ideas up to my esteemed college at HubSpot. We all agreed that for application developer, especially when you have things like `tanstack/query`and `apolloClient` to deal with errors related to networking, which is by far the largest fallible body of code in a typical front-end applicable, then your use case is simple enough that try/catch would suffice.
+As one Redditor aptly criticized Effect and similar functional programming tools:
 
-Go-style has the advantage of simplicity, which is true to Go spirit. Using the pattern is simple, and perhaps that's enough for even more complex use case. The one critique that I have is that error handling becomes eager.
-
-Monadic-style has more feature, for example supporting boolean-like logic like `and` or `or`, or `flatMap` to chain together multiple fallible operations in a row, all while remaining lazy. Some think the fluent-like API looks clean, while the other dislike the added complexity of API surface as unnecessarily burdensome to learn, akin to a Domain Specific Language.
-
-Personally, function-programming ideas are still much of a learning curve, and a harder sell. Monadic style data structure for handling error may have more feature, but the learning curve might turn people away, especially more junior folks.
-
-I think this quote from a Redditor criticizing Effect and other function programming related tools perfectly echos the sentiment:
-
-This feels a lot like the TS iteration of the "lodash everything" or "ramda everything" style of functional-first JS that was popular for a brief moment five or six years ago.
-
-> ...**but the cognitive burden of this approach is effectively the same as an entirely different programming language**. All of the benefits and costs are mostly the same, but because the _language_ stays the same, time isn't allotted for stuff like the several days it takes to become comfortable with a different mental model like it otherwise would be.
+> "...the cognitive burden of this approach is effectively the same as an entirely different programming language. All of the benefits and costs are mostly the same, but because the _language_ stays the same, time isn't allotted for stuff like the several days it takes to become comfortable with a different mental model like it otherwise would be.
 > ...
-> If you adopt this, do it with open eyes and be prepared to have "TS repos" and "Effect repos" and engineers who are familiar with one, but not the other, and the necessity of onboarding new engineers as if you were training them in a new programming language.
-> **Large scale, paradigm-shifting user-space libraries like this are almost never a good choice unless the entire organization is willing to buy into them for every project in the language.**
+> If you adopt this, do it with open eyes and be prepared to have 'TS repos' and 'Effect repos' and engineers who are familiar with one, but not the other, and the necessity of onboarding new engineers as if you were training them in a new programming language.
+> **Large scale, paradigm-shifting user-space libraries like this are almost never a good choice unless the entire organization is willing to buy into them for every project in the language.**"
 > - u/[oorza](https://www.reddit.com/user/oorza/)
 
-# Closing thought
-I personally love **Rust** 🦀, so If I can start a new project, I'll use Oxide-ts. 
+# Conclusion
 
-**How about you? What are your thoughts? Let me know in the comments below.**
+While I personally favor the Rust approach and would use Oxide-ts in new projects, the choice of error handling strategy should align with your team's expertise and project requirements. Simple applications might be well-served by traditional try/catch, while more complex systems might benefit from the type safety and explicitness of Result types.
+
+**What's your preferred approach to error handling? Share your thoughts in the comments below!**
 
