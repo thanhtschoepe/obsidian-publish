@@ -7,6 +7,7 @@ tags:
   - rust
   - haskell
   - typescript
+date: 2024-11-01
 ---
 I hope everybody had a fun Halloween night.
 

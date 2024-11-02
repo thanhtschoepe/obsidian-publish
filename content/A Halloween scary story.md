@@ -3,6 +3,7 @@ tags:
   - software_engineering
   - horror
 title: A Halloween scary story for dev.
+date: 2024-10-31
 ---
 
 
