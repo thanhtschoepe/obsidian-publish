@@ -22,10 +22,101 @@ Error handling isn't just a technical challenge - it's a critical aspect of soft
 The most common approach is the traditional try/catch method. Everyone is familiar with its basic syntax, which works similarly for both synchronous and asynchronous code:
 
 ```ts
-try {} catch (e) {} finally {}
+async function fetchUserDataBasic(userId: number): Promise<UserData> {
+  try {
+    const profile = await fetchProfileRaw(userId);
+    const posts = await fetchPostsRaw(userId);
+    return { id: userId, profile, posts };
+  } catch (error) {
+    throw new Error(`Failed to fetch user data: ${error.message}`);
+  }
+}
 ```
 
 While this works well for simple scenarios, it presents significant challenges when scaled to enterprise-level applications or complex libraries.
+
+For the sake of comparison later with other alternative, let's consider the scenarios of **API Request Chain with Rate Limiting**.
+
+Consider calling multiple dependent APIs where you need to:
+- Handle rate limit errors specially (by waiting and retrying).
+- Aggregate errors from multiple calls.
+- Transform upstream service errors into your API's error format.
+- Preserve the original error context for debugging.
+
+The code would look somewhat like this:
+
+```ts
+// Traditional try/catch approach
+type UserData = {
+  id: number;
+  profile: string;
+  posts: string[];
+};
+
+type ApiError = { type: 'RateLimit' } | { type: 'NetworkError'; message: string };
+
+// Traditional TypeScript with try/catch
+// no way to type the possible Error.
+async function fetchUserDataTraditional(userId: number): Promise<UserData> {
+  try {
+    const [profilePromise, postsPromise] = [
+      fetchProfileRaw(userId),
+      fetchPostsRaw(userId)
+    ];
+
+    try {
+      const [profile, posts] = await Promise.all([profilePromise, postsPromise]);
+      return {
+        id: userId,
+        profile,
+        posts,
+      };
+    } catch (error) {
+      // Handle rate limits by retrying both operations
+      if (isRateLimit(error)) {
+        await delay(1000);
+        const [profile, posts] = await Promise.all([
+          fetchProfileRaw(userId),
+          fetchPostsRaw(userId)
+        ]);
+        return {
+          id: userId,
+          profile,
+          posts,
+        };
+      }
+      throw error; // could have been replaced with anything and no type error!
+    }
+  } catch (error) {
+    throw new Error(`Failed to fetch user data: ${error.message}`);
+  }
+}
+
+// Helper functions for the traditional approach
+async function fetchProfileRaw(userId: number): Promise<string> {
+  const result = await fetch(`/api/profile/${userId}`);
+  if (!result.ok) {
+    throw { 
+      type: result.status === 429 ? 'RateLimit' : 'NetworkError',
+      message: await result.text()
+    } as ApiError;
+  }
+  return result.text();
+}
+
+async function fetchPostsRaw(userId: number): Promise<string[]> {
+  const result = await fetch(`/api/posts/${userId}`);
+  if (!result.ok) {
+    throw { 
+      type: result.status === 429 ? 'RateLimit' : 'NetworkError',
+      message: await result.text()
+    } as ApiError;
+  }
+  return result.json();
+}
+```
+
+^z3ctgq
 
 ## Limitations of Traditional Error Handling
 
@@ -36,6 +127,13 @@ While in my humble opinion that error is harder to follow, I've realized that go
 While you typically throw Error objects, [JavaScript allows you to throw anything](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/throw). This is why in TypeScript, caught errors are typically typed as `unknown`.
 
 As teams increasingly rely on type-checking for code safety, this limitation becomes more problematic. You can't be certain what you're catching, which means your error handling code might itself be prone to errors.
+
+Did you catch the bug in the example above? Hint: it's line 43
+![[Better error handling#^z3ctgq]]
+
+
+> [!warning]- Bug on line 43
+> The thing that was thrown on line 40 is not an instance of Error, so `.message` will throw a very unhelpful `cannot read property of undefined`. Good luck finding out! 
 
 ### 2. Lack of Type System Integration
 As developers increasingly depend on type-checking, there's a growing need for the type system to represent potentially throwing code, similar to how `Promise` indicates asynchronous execution.
@@ -51,57 +149,215 @@ Recent approaches to better error handling share two key principles:
 Instead of throwing errors, these approaches return them, making errors another form of sentinel value (similar to how `.indexOf` returns `-1` for failure rather than throwing).
 
 ## Go-style: Return Tuples
-
 Source: https://go.dev/blog/error-handling-and-go
 
-This approach returns a tuple containing either the result or an error:
-
+A very simple example, for starter, could be division by zero.
 ```ts
-type ResultTuple = [number, null] | [null, Error];
-function divisionByZero(n: number): ResultTuple {};
+type Result<T, E> = [T, Error | null];
+
+function divide(a: number, b: number): Result<number> {
+  if (b === 0) {
+    return [0, new Error("Division by zero")];
+  }
+  return [a / b, null];
+}
 ```
 
-The key advantage is that errors become part of the type system, making it explicit which code paths need error handling. There are proposals for syntax improvements to standardize this approach, as discussed in this video by Theo:
+This approach returns a tuple containing either the result or an error.
+
+Here's how it looks in a complex scenario.
+
+```ts
+
+// Go-style approach in TypeScript
+type Result<T> = [T, ApiError | null];
+
+async function fetchUserDataGo(userId: number): Promise<Result<UserData>> {
+  // Launch both requests in parallel
+  const profilePromise = fetchProfileGo(userId);
+  const postsPromise = fetchPostsGo(userId);
+
+  // Wait for both and check errors
+  const [profileResult, postsResult] = await Promise.all([
+    profilePromise,
+    postsPromise
+  ]);
+
+  const [profile, profileErr] = profileResult;
+  const [posts, postsErr] = postsResult;
+
+  // If either had a rate limit error, retry both after delay
+  if (profileErr?.type === 'RateLimit' || postsErr?.type === 'RateLimit') {
+    await delay(1000);
+    const [retryProfileResult, retryPostsResult] = await Promise.all([
+      fetchProfileGo(userId),
+      fetchPostsGo(userId)
+    ]);
+
+    const [retryProfile, retryProfileErr] = retryProfileResult;
+    const [retryPosts, retryPostsErr] = retryPostsResult;
+
+    if (retryProfileErr !== null) {
+      return [null, retryProfileErr];
+    }
+    if (retryPostsErr !== null) {
+      return [null, retryPostsErr];
+    }
+
+    return [{
+      id: userId,
+      profile: retryProfile,
+      posts: retryPosts
+    }, null];
+  }
+
+  // Check original errors if not rate limited
+  if (profileErr !== null) {
+    return [null, profileErr];
+  }
+  if (postsErr !== null) {
+    return [null, postsErr];
+  }
+
+  return [{
+    id: userId,
+    profile,
+    posts
+  }, null];
+}
+
+// Helper functions for Go style
+async function fetchProfileGo(userId: number): Promise<Result<string>> {
+  try {
+    const result = await fetch(`/api/profile/${userId}`);
+    if (!result.ok) {
+      const error: ApiError = {
+        type: result.status === 429 ? 'RateLimit' : 'NetworkError',
+        message: await result.text()
+      };
+      return ["", error];
+    }
+    return [await result.text(), null];
+  } catch (error) {
+    return ["", { type: 'NetworkError', message: String(error) }];
+  }
+}
+
+async function fetchPostsGo(userId: number): Promise<Result<string[]>> {
+  try {
+    const result = await fetch(`/api/posts/${userId}`);
+    if (!result.ok) {
+      const error: ApiError = {
+        type: result.status === 429 ? 'RateLimit' : 'NetworkError',
+        message: await result.text()
+      };
+      return [[], error];
+    }
+    return [await result.json(), null];
+  } catch (error) {
+    return [[], { type: 'NetworkError', message: String(error) }];
+  }
+}
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const isRateLimit = (error: unknown): error is ApiError => 
+  (error as ApiError)?.type === 'RateLimit';
+``` 
+
+A library that can make this process easier is [go-go-try](https://github.com/thelinuxlich/go-go-try). Theo also covered a proposal to have this approach integrated into the language.
 
 ![](https://www.youtube.com/watch?v=lng6dmrWg8A)
-
 ## Monadic Style: Result Types
 
 ![](https://i.imgflip.com/98lel2.jpg)
 
-While "monad" sounds intimidating, think of it as a container for values that might fail - similar to how `Promise` handles asynchronous operations. In error handling, this usually takes the form of `Either<L,R>` (Scala/Haskell) or `Result<T,E>` (Rust).
+While "monad" sounds intimidating, think of it as a container for values that might fail - similar to how `Promise` is a container for a future value. In error handling, this usually takes the form of `Either<L,R>` (Scala/Haskell) or `Result<T,E>` (Rust - [Check guide here](https://doc.rust-lang.org/book/ch09-00-error-handling.html)).
 
-Here's how it looks in practice:
-
+A brief demo for how it works in simple case.
 ```ts
-// Using Result type (Rust-style)
-function division(a: number, b: number): Result<number, Error> {
-    /* implementation details */
+import { Result, ok, err } from 'neverthrow';
+
+// Simple example
+function divideMonadic(a: number, b: number): Result<number, Error> {
+  return b === 0
+    ? err(new Error('Division by zero'))
+    : ok(a / b);
 }
 
-// Usage:
-function main() {
-    let data = division(4, 2); 
-    if (data.isOk()) {
-        // Safely access the success value
-        console.log(data.unwrap());
-    } else {
-        // Handle the error case explicitly
-        console.error(data.unwrapError());
-    };
-
-    // Chain operations with a fluent API
-    data.map(n => n * 2).mapErr(err => err.toString());
+// alternative, these system often have a "entrypoint" type of function to convert into the monadic system like so.
+function divideMonadic2(a: number, b: number): Result<number, Error> {
+ // entrypoint "fromThrowable" capture the fallible system into the monadic framework.
+ return Result.fromThrowable(a / b, () => new Error('Division by zero'))
 }
+
+// Usage showing composition
+const result = divideMonadic(10, 2)
+  .map(n => n * 2)
+  .mapErr(e => new Error(`Calculation error: ${e.message}`));
 ```
 
-You can find implementations of this pattern in functional programming libraries like [`Effect`](https://effect.website/docs/error-management/expected-errors/) or [Oxide-ts](https://www.npmjs.com/package/oxide.ts/v/1.0.0-next.6#new-in-10).
+Here's how it looks in practice (using [`neverthrow`](https://github.com/supermacro/neverthrow)):
 
-# Practical Considerations
+```ts
+import { Result, ResultAsync, err } from 'neverthrow';
 
-In discussions with my colleagues at HubSpot, we've found that for typical frontend applications - especially those using `tanstack/query` or `apolloClient` for network error handling - the traditional try/catch approach often suffices.
+// Types
+type UserData = {
+  id: number;
+  profile: string;
+  posts: string[];
+};
 
-The Go-style approach offers simplicity and accessibility, though it requires eager error handling. The monadic style provides more features, like boolean operations and chaining multiple fallible operations, while maintaining lazy evaluation. However, its learning curve and API complexity can be challenging, especially for junior developers.
+// It's typical in these community to have union type that represents all possible way a module can fail.
+type ApiError = { type: 'RateLimit' } | { type: 'NetworkError'; message: string };
+
+// API functions
+function fetchProfile(userId: number): ResultAsync<string, ApiError> {
+  // Implementation not shown, but typically these systems provide methods to "enter the Result" system, like fromPromise
+  return ResultAsync.fromPromise(/* ... */);
+}
+
+function fetchUserPosts(userId: number): ResultAsync<string[], ApiError> {
+  // Implementation not shown
+  return ResultAsync.fromPromise(/* ... */);
+}
+
+// Main business logic
+function fetchUserData(userId: number): ResultAsync<UserData, ApiError> {
+  const profileResult = withRetry(fetchProfile(userId));
+  const postsResult = withRetry(fetchUserPosts(userId));
+
+  return ResultAsync.combine([profileResult, postsResult])
+    .map(([profile, posts]) => ({
+      id: userId,
+      profile,
+      posts,
+    }));
+}
+
+// Helpers
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+const withRetry = <T>(ra: ResultAsync<T, ApiError>): ResultAsync<T, ApiError> => 
+  // functional style where developer "attach" logic in the form of callbacks
+  // orElse: https://github.com/supermacro/neverthrow?tab=readme-ov-file#resultasyncorelse-method
+  ra.orElse(error => 
+    error.type === 'RateLimit'
+      ? delay(1000).then(() => ra)
+      : err(error)
+  );
+```
+
+These system tuck the difficulty of control flow behind a framework (theoretically known as Monad). You as the application developer will work with the data and error through via attaching "callbacks". Error and data transformation can be done via these methods.
+
+You can find implementations of this pattern in functional programming libraries like [`Effect`](https://effect.website/docs/error-management/expected-errors/) or [Oxide-ts](https://www.npmjs.com/package/oxide.ts/v/1.0.0-next.6#new-in-10) and [neverthrow](https://github.com/supermacro/neverthrow).
+#  My take on the tradeoffs
+
+In discussions with my colleagues at HubSpot, we've found that for typical frontend applications - especially those using `tanstack/query` or `apolloClient` for network error handling - the traditional try/catch approach often suffices. **The shorter your data journey is to the layer that handles the error, the less useful the other alternatives bring.**
+
+![[Better error handling 2024-11-03 14.30.17.excalidraw]]
+
+The Go-style approach offers simplicity and accessibility, though it requires eager error handling which can **result in extreme verbosity**. The monadic style provides more features, like boolean operations and chaining multiple fallible operations, while maintaining lazy evaluation. However, **its learning curve and API complexity can be challenging**, especially for junior developers, or folks who disliked functional programming paradigm.
 
 As one Redditor aptly criticized Effect and similar functional programming tools:
 
@@ -111,15 +367,82 @@ As one Redditor aptly criticized Effect and similar functional programming tools
 > **Large scale, paradigm-shifting user-space libraries like this are almost never a good choice unless the entire organization is willing to buy into them for every project in the language.**"
 > - u/[oorza](https://www.reddit.com/user/oorza/)
 
-# Tradeoff - No back trace
-_This section is new in my 2nd edition of this article_
+Also, it's common practice so have a layer somewhere in your codebase that handles the remaining recoverable error. Once an error is caught, it's possible to identify where it originated from in form of a stack trace. This isn't something that returning error as value provides, and it can be a bit of a problem to find exactly where the error may comes from, especially if there's some error mapping somewhere else before it reached this layer.
 
-From my opinion it's common practice so have a layer somewhere in your codebase that handles error. Once an error is caught, it's possible to identify where it originated from in form of a stack trace. This isn't something that returning error as value provides, and it can be a bit of a problem to find exactly where the error may comes from, especially if there's some error mapping somewhere else before it reached this layer.
+In Rust, (to the best of my knowledge), only `anyhow` crates enable back trace for Result type. Otherwise this is not the default behavior.
 
-In Rust, (to the best of my knowledge), only `anyhow` crates enable Result to have error, which is not the default behavior. 
+# The community's take on the tradeoff
+Reddit: https://www.reddit.com/r/typescript/comments/1gi5zul/error_handling_in_typescript/ 
+## Additional Context: Panic vs. Recoverable Errors
+
+A significant point raised by the community is the distinction between panic/unrecoverable errors and normal error handling:
+
+> Panics and error return types are two different issues... In Rust you have results that can be an error and you have system failures that can panic. If you have a panic it's the equivalent of a non catchable error in JS, it will simply kill that program because it doesn't know what to do.
+
+> The typical practice is to use errors-as-values for recoverable errors... Irrecoverable errors can still be exceptions. There's not much you can do except let them bubble up and terminate the program.
+
+This helps explain why even languages like Go and Rust, which primarily use errors-as-values, still have concepts like `panic`:
+
+> Go/Rust style error handling sucks and is incomplete. Both of these languages have the concept of a "panic" to deal with the fact that "errors as values" is a broken concept with gaping holes in it.
+
+## The "Check Everything" Controversy
+
+An interesting debate emerged about the necessity of checking every possible error:
+
+> The problem with "errors as values" is that literally every single line of code can potentially error. So if you truly want to be absolutely safe, you have to check for an error after every single calculation in your code.
+
+However, this was contested by others:
+
+> In JS world this could be true, but for Rust (and statically typed compiled languages in general) this is actually not the case... GO pointers are the only exceptions to this. There are no nil check protection at compile level. But Rust, kotlin etc are solid.
+
+## Practical Implementation Strategies
+
+> Not saying I agree, but if you follow OP's thinking, runtime errors thrown by external libraries should be caught by your code as soon as possible, then wrapped in whatever data structure you deem appropriate.
+
+Which explains `fromPromise` methods (and friends) found in `neverthrow` implementation.
+## In Defense of Try/Catch
+
+Several developers make compelling arguments for try/catch:
+
+> The performance cost of throwing an exception matters very little, because you only pay it when an exception is actually thrown. With errors as values, you are ALWAYS paying the performance cost because you have to constantly check for errors even when no error has occurred!
+
+> If you need to do cleanup, then that is what the finally block is for. Languages like C# has had the using keyword to allow you to automatically do cleanup, and typescript has gotten a very similar using keyword [...] which gives you some nice syntactic sugar to do what the finally block is for traditionally.
+
+> Try/catch/finally has very specific rules on how it works. I find code protected by exceptions a lot easier to reason about than code that has if err plastered all over it.
+
+> They're all just patterns that you follow depending on the language implementation. Of course, JS/TS's try catch implementation is egregiously bad compared to all the rest of them... but... that's a languiage issue not a "which style is better" issue
+> As far as I have been able to see, you don't write any better code if you have a system that throws versus a system that doesn't, either way, it's your problem when you write code that fails, and you'll handle it according to the methods available in the specific language.
+ You don't ever have to throw in Javascript. But if you never catch, then you're going to have the worst error handling.
+
+> Try catch has a very long history in programming languages.
+## Arguments for Alternative Approaches
+
+However, many developers recognize limitations with try/catch, particularly in TypeScript:
+
+> In JS/TS you can't easily distinguish what type of error occurred and thus handle it accordingly. It could truly be anything.
+
+> In JavaScript you can throw any value. throw 42 is perfectly legal.
+
+> The typical practice is to use errors-as-values for recoverable errors, like "the user didn't enter a valid email address" (so we need to handle that error and take a specific action, such as showing them a nice validation error and letting them try again).
+
+## Arguments against Alternative approaches
+
+The community highlights important tradeoffs about performance and DX concerns.
+
+> People have benchmarked this. Code that uses errors as values is significantly slower than code that uses exceptions.
+
+> I write mainly Go code at the moment. A big proportion of the code are the three lines `if err != nil { return nil, err }`. It really isn't that great an experience.
+
+> You want to us to wrap all our return types? This would create massive overhead to handle a very small annoyance.
+> Also, we still need to handle exceptions which occur due to runtime errors.
+
 # Conclusion
 
-While I personally favor the Rust approach and would use Oxide-ts in new projects, the choice of error handling strategy should align with your team's expertise and project requirements. Simple applications might be well-served by traditional try/catch, while more complex systems might benefit from the type safety and explicitness of Result types.
+
+
+While I personally favor the Rust approach and would use `oxide-ts` / `neverthrow` in new projects, the choice of error handling strategy should align with your team's expertise and project requirements. Simple applications might be well-served by traditional try/catch, while more complex systems might benefit from the type safety and explicitness of Result types.
+
+![[Better error handling 2024-11-03 15.05.02.excalidraw]]
+**Here's my unhelpful flow chart.**
 
 **What's your preferred approach to error handling? Share your thoughts in the comments below!**
-
