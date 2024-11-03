@@ -30,7 +30,7 @@ While this works well for simple scenarios, it presents significant challenges w
 ## Limitations of Traditional Error Handling
 
 _Previous I made the analogy that try/catch is akin to GOTO statement, which while some agreed, several disagreed. I also mention the analogy to callback hell without going further, which was under explained. I've since retracted these comments as it's not very relevant to the point and is technically not very correct analogies. 
-While in my humble opinion that error is harder to follow, I've realized that good stack trace significantly alleviates the problem of finding the source of error, and so my argument no longer holds a lot of weight.
+While in my humble opinion that error is harder to follow, I've realized that good stack trace significantly alleviates the problem of finding the source of error, and so my argument no longer holds a lot of weight._
 
 ### 1. Type Safety Concerns
 While you typically throw Error objects, [JavaScript allows you to throw anything](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/throw). This is why in TypeScript, caught errors are typically typed as `unknown`.
@@ -116,7 +116,7 @@ _This section is new in my 2nd edition of this article_
 
 From my opinion it's common practice so have a layer somewhere in your codebase that handles error. Once an error is caught, it's possible to identify where it originated from in form of a stack trace. This isn't something that returning error as value provides, and it can be a bit of a problem to find exactly where the error may comes from, especially if there's some error mapping somewhere else before it reached this layer.
 
-In Rust, (to the best of my knowledge), only `anyhow` crates enable Result to have error, which is not the default behavior.
+In Rust, (to the best of my knowledge), only `anyhow` crates enable Result to have error, which is not the default behavior. 
 # Conclusion
 
 While I personally favor the Rust approach and would use Oxide-ts in new projects, the choice of error handling strategy should align with your team's expertise and project requirements. Simple applications might be well-served by traditional try/catch, while more complex systems might benefit from the type safety and explicitness of Result types.
