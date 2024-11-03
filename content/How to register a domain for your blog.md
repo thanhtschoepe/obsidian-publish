@@ -2,6 +2,7 @@
 tags:
   - tips
 title: How to register a domain for your blog
+date: 2024-12-28
 ---
 - Recently I decided to professionalize this newly minted, in-development blog (I haven't even customize the theme yet). I sunk a good one hour into fiddling with DNS configuration because it's not very obvious to me how the whole system work. Configuring [namecheap.com](https://namecheap.com/) isn't exactly easy so I figure I'd save everybody's time with a blog post.
 

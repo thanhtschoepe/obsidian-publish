@@ -1,6 +1,7 @@
 ---
 cssclasses: 
 title: Hello world
+date: 2024-10-28
 ---
 
 Welcome! I'm **Thành** (pronounced like "than"), a software engineer with nearly 8 years of experience crafting digital solutions. My name, of Vietnamese origin, means "success" - a fitting coincidence for my chosen path.

@@ -2,6 +2,7 @@
 title: The Bussin programming language
 tags:
   - programmng_language
+date: 2024-10-30
 ---
 Recently I came across this video
 ![](https://www.youtube.com/watch?v=pgeSGBwtHW8)
