@@ -355,7 +355,7 @@ You can find implementations of this pattern in functional programming libraries
 
 In discussions with my colleagues at HubSpot, we've found that for typical frontend applications - especially those using `tanstack/query` or `apolloClient` for network error handling - the traditional try/catch approach often suffices. **The shorter your data journey is to the layer that handles the error, the less useful the other alternatives bring.**
 
-![[Better error handling 2024-11-03 14.30.17.excalidraw]]
+![[Better error handling 2024-11-03 14.30.17.excalidraw.svg]]
 
 The Go-style approach offers simplicity and accessibility, though it requires eager error handling which can **result in extreme verbosity**. The monadic style provides more features, like boolean operations and chaining multiple fallible operations, while maintaining lazy evaluation. However, **its learning curve and API complexity can be challenging**, especially for junior developers, or folks who disliked functional programming paradigm.
 
@@ -442,7 +442,7 @@ The community highlights important tradeoffs about performance and DX concerns.
 
 While I personally favor the Rust approach and would use `oxide-ts` / `neverthrow` in new projects, the choice of error handling strategy should align with your team's expertise and project requirements. Simple applications might be well-served by traditional try/catch, while more complex systems might benefit from the type safety and explicitness of Result types.
 
-![[Better error handling 2024-11-03 15.05.02.excalidraw]]
+![[Better error handling 2024-11-03 15.05.02.excalidraw.svg]]
 **Here's my unhelpful flow chart.**
 
 **What's your preferred approach to error handling? Share your thoughts in the comments below!**
