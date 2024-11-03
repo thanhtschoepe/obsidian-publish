@@ -29,21 +29,15 @@ While this works well for simple scenarios, it presents significant challenges w
 
 ## Limitations of Traditional Error Handling
 
-### 1. Control Flow Disruption
-Essentially, it's a glorified GOTO statement - something legendary computer scientist [Edsger W. Dijkstra](https://dl.acm.org/doi/10.1145/362929.362947# "Edsger W. Dijkstra") warned against in his famous paper [Goto Statement Considered Harmful](https://dl.acm.org/doi/10.1145/362929.362947).
+_Previous I made the analogy that try/catch is akin to GOTO statement, which while some agreed, several disagreed. I also mention the analogy to callback hell without going further, which was under explained. I've since retracted these comments as it's not very relevant to the point and is technically not very correct analogies. 
+While in my humble opinion that error is harder to follow, I've realized that good stack trace significantly alleviates the problem of finding the source of error, and so my argument no longer holds a lot of weight.
 
-![](https://www.explainxkcd.com/wiki/images/7/7a/goto.png)
-
-_credit: XKCD_
-
-This creates the same kind of challenges that developers faced with callbacks before Promises came along.
-
-### 2. Type Safety Concerns
+### 1. Type Safety Concerns
 While you typically throw Error objects, [JavaScript allows you to throw anything](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/throw). This is why in TypeScript, caught errors are typically typed as `unknown`.
 
 As teams increasingly rely on type-checking for code safety, this limitation becomes more problematic. You can't be certain what you're catching, which means your error handling code might itself be prone to errors.
 
-### 3. Lack of Type System Integration
+### 2. Lack of Type System Integration
 As developers increasingly depend on type-checking, there's a growing need for the type system to represent potentially throwing code, similar to how `Promise` indicates asynchronous execution.
 
 Currently, there's no way to type thrown errors. Code that may throw is indistinguishable from code that won't. While some developers use `@throw` in JSDoc comments, relying on optional documentation isn't a sustainable strategy for critical systems like flight controls or medical devices.
@@ -117,6 +111,12 @@ As one Redditor aptly criticized Effect and similar functional programming tools
 > **Large scale, paradigm-shifting user-space libraries like this are almost never a good choice unless the entire organization is willing to buy into them for every project in the language.**"
 > - u/[oorza](https://www.reddit.com/user/oorza/)
 
+# Tradeoff - No back trace
+_This section is new in my 2nd edition of this article_
+
+From my opinion it's common practice so have a layer somewhere in your codebase that handles error. Once an error is caught, it's possible to identify where it originated from in form of a stack trace. This isn't something that returning error as value provides, and it can be a bit of a problem to find exactly where the error may comes from, especially if there's some error mapping somewhere else before it reached this layer.
+
+In Rust, (to the best of my knowledge), only `anyhow` crates enable Result to have error, which is not the default behavior.
 # Conclusion
 
 While I personally favor the Rust approach and would use Oxide-ts in new projects, the choice of error handling strategy should align with your team's expertise and project requirements. Simple applications might be well-served by traditional try/catch, while more complex systems might benefit from the type safety and explicitness of Result types.
