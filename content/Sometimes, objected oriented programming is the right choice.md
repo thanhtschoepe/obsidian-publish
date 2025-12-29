@@ -217,7 +217,7 @@ const changeEmail = useCallback((newEmail: string) => {
 ## Tooling autosuggest for better discoverability
 The vast majority of IDE out there, especially [[VSCode]] supports some form of autosuggestion. 
 
-![[Screenshot 2024-10-27 164617.png]]
+![[Screenshot 2024-10-27 164617.webp]]
 Here we have an toy implementation of the idea. When the class instance `metaDataWrapper` is access, intellisense autosuggests our methods. There's no need to go find and trace that utility files! This is a pretty big DX win in my opinion.
 
 ## Open up doors for generic code (polymorphism)

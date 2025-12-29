@@ -26,7 +26,7 @@ Assuming you have access to your DNS configuration on the vendor's system:
 - Click "Add a domain".
 - Follow the instruction. For example I am using a bogus domain here that I do not own.
   
-  ![[Screenshot 2024-10-29 at 5.51.55 PM.png]]
+  ![[Screenshot 2024-10-29 at 5.51.55 PM.webp]]
 
 After verification is complete, we can move on to step 3.3814 
 
