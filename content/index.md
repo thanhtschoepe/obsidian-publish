@@ -15,4 +15,4 @@ This blog is where I share things I'm learning, stuff I find interesting, and th
 **Find me elsewhere:**
 - [Resume](https://thanhnguyen.vercel.app/)
 - [LinkedIn](https://linkedin.com/in/thanhng-97/)
-- [GitHub](https://github.com/thanhnguyen)
+- [GitHub](https://github.com/thanhtschoepe)
