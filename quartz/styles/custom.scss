@@ -1,3 +1,247 @@
 @use "./base.scss";
 
-// put your custom CSS here!
+:root {
+  --font-weight-normal: 300;
+  --font-weight-bold: 700;
+}
+
+html {
+  font-size: 14px;
+}
+
+.lava-lamp {
+  position: fixed;
+  bottom: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120vw;
+  height: 400px;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(80px);
+  opacity: 0.6;
+}
+
+.lava-blob {
+  position: absolute;
+  border-radius: 50%;
+
+  &:nth-child(1) {
+    width: 35vw;
+    height: 300px;
+    background: linear-gradient(180deg, #e87a28 0%, #f5a623 100%);
+    bottom: 0;
+    left: 10%;
+    animation: blob1 12s ease-in-out infinite;
+  }
+
+  &:nth-child(2) {
+    width: 30vw;
+    height: 280px;
+    background: linear-gradient(180deg, #c94a1a 0%, #e87a28 100%);
+    bottom: 20px;
+    left: 40%;
+    animation: blob2 15s ease-in-out infinite;
+  }
+
+  &:nth-child(3) {
+    width: 35vw;
+    height: 260px;
+    background: linear-gradient(180deg, #d45a3a 0%, #f5a623 100%);
+    bottom: 0;
+    right: 10%;
+    animation: blob3 18s ease-in-out infinite;
+  }
+}
+
+.sky-glow {
+  position: fixed;
+  top: -200px;
+  left: 0;
+  width: 100vw;
+  height: 450px;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(100px);
+  opacity: 0.5;
+}
+
+.sky-blob {
+  position: absolute;
+  border-radius: 50%;
+
+  &:nth-child(1) {
+    width: 50vw;
+    height: 350px;
+    background: linear-gradient(180deg, #0d1a2d 0%, #1a2a4a 100%);
+    top: 0;
+    left: 5%;
+    animation: skyblob1 20s ease-in-out infinite;
+  }
+
+  &:nth-child(2) {
+    width: 45vw;
+    height: 300px;
+    background: linear-gradient(180deg, #162438 0%, #1e3a5f 100%);
+    top: 30px;
+    right: 10%;
+    animation: skyblob2 25s ease-in-out infinite;
+  }
+}
+
+@keyframes skyblob1 {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+  }
+  50% {
+    transform: translateX(3vw) scale(1.05);
+  }
+}
+
+@keyframes skyblob2 {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+  }
+  50% {
+    transform: translateX(-4vw) scale(1.08);
+  }
+}
+
+@keyframes blob1 {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+  }
+  33% {
+    transform: translateX(5vw) scale(1.1);
+  }
+  66% {
+    transform: translateX(-3vw) scale(0.95);
+  }
+}
+
+@keyframes blob2 {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+  }
+  33% {
+    transform: translateX(-4vw) scale(1.05);
+  }
+  66% {
+    transform: translateX(6vw) scale(1.08);
+  }
+}
+
+@keyframes blob3 {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+  }
+  33% {
+    transform: translateX(-5vw) scale(1.08);
+  }
+  66% {
+    transform: translateX(4vw) scale(0.95);
+  }
+}
+
+body {
+  font-weight: var(--font-weight-normal);
+  letter-spacing: 0.02em;
+  line-height: 1.7;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+}
+
+.page-title a {
+  font-weight: var(--font-weight-bold);
+}
+
+a {
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--tertiary);
+  }
+}
+
+article a {
+  background: linear-gradient(90deg, #c94a1a, #e87a28, #f5a623);
+  background-size: 100% 2px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  padding-bottom: 2px;
+
+  &:hover {
+    background-size: 100% 100%;
+    color: var(--light);
+    padding: 0.1em 0.25em;
+    margin: 0 -0.25em;
+    border-radius: 3px;
+  }
+}
+
+code {
+  background: var(--lightgray);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.callout {
+  border-radius: 8px;
+}
+
+blockquote {
+  border-left: 3px solid var(--secondary);
+  padding-left: 1em;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.explorer, .toc, .backlinks, .graph {
+  h3 {
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.5;
+  }
+}
+
+.left.sidebar {
+  opacity: 0.75;
+  transition: opacity 0.3s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  .explorer {
+    font-size: 0.9em;
+
+    ul {
+      li {
+        opacity: 0.8;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
+
+.page-title {
+  opacity: 1 !important;
+}
+
+.right.sidebar {
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+}
