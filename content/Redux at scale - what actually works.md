@@ -81,7 +81,7 @@ Redux with selectors solved this — components subscribe to specific slices, up
 
 Redux isn't perfect:
 - **Boilerplate still exists**, even with RTK. Slices, selectors, typed hooks — it adds up.
-- **It doesn't play well with some patterns** — like the wrapper class pattern I mentioned in another post. Redux wants plain objects everywhere.
+- **It doesn't play well with some patterns** — like the [[Sometimes, objected oriented programming is the right choice|wrapper class pattern]]. Redux wants plain objects everywhere.
 
 But for applications with complex UI state and the need for explicit transitions, it holds up.
 

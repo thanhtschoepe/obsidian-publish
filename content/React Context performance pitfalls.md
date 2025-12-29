@@ -208,5 +208,5 @@ Context has a cost. Every consumer re-renders when the context value changes. If
 2. Are your hooks re-joining split contexts?
 3. Are default arguments creating new objects?
 
-The solution isn't always "use Redux" — but understanding *why* Redux with selectors performs better helps you make the right call for your app.
+The solution isn't always "use Redux" — but understanding *why* [[Redux at scale - what actually works|Redux with selectors]] performs better helps you make the right call for your app.
 

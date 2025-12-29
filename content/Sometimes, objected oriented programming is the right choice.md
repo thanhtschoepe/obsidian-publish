@@ -65,7 +65,7 @@ I was actually inspired by MobX when I first explored this. At a previous job (G
 
 # Where it doesn't
 
-**Redux.** I tried pitching this at my current job, but Redux wants plain objects everywhere. Middleware, selectors, serialization — all assume POJOs. Wrapping and unwrapping constantly defeats the purpose.
+**Redux.** I tried pitching this at my current job, but [[Redux at scale - what actually works|Redux wants plain objects everywhere]]. Middleware, selectors, serialization — all assume POJOs. Wrapping and unwrapping constantly defeats the purpose.
 
 If your stack is heavily Redux-based, this pattern probably isn't worth the friction.
 
