@@ -12,6 +12,20 @@ This blog is where I share things I'm learning, stuff I find interesting, and th
 
 ---
 
+**Writing:**
+- [[The Rust I learned from LeetCode]]
+- [[Two small React opinions]]
+- [[The test builder that saved my sanity]]
+- [[Better error handling]]
+- [[React Context performance pitfalls]]
+- [[Redux at scale - what actually works]]
+- [[Bridging frontend and backend - BFF, meta-frameworks, and HTMX]]
+- [[My note-taking stack - Obsidian, Cursor, and the power of plain text]]
+- [[Sometimes, objected oriented programming is the right choice]]
+- [[How to register a domain for your blog]]
+
+---
+
 **Find me elsewhere:**
 - [Resume](https://thanhnguyen.vercel.app/)
 - [LinkedIn](https://linkedin.com/in/thanhng-97/)
