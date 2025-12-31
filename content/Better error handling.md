@@ -6,7 +6,6 @@ tags:
   - typescript
 date: 2024-11-01
 ---
- o
 I've been thinking about error handling in TypeScript lately. This isn't a definitive guide — just where I've landed after writing a lot of frontend code.
 
 # The problem with try/catch
